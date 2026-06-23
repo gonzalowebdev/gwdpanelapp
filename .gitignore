@@ -1,0 +1,20 @@
+# Dependencias de Node
+node_modules/
+
+# Archivos de compilación de Android (son grandes y se generan localmente)
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/*.iml
+android/.idea/
+
+# Opcional: si usas iOS (no lo usas)
+ios/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

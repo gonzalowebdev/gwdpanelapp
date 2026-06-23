@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>GWD · Acceso</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#1EB0F0;--blue-2:#1490C8;--blue-3:#0D6E9E;
+  --green:#2EC4B6;--red:#E84545;--orange:#F5A623;
+  --bg:#0B1220;--surface:#111827;--surface2:#1A2438;--surface3:#232F47;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);
+  --text:#E8EEFF;--text2:#94A3C4;--text3:#5A6A8A;
+  --shadow:0 20px 60px rgba(0,0,0,.6);
+}
+[data-theme="light"]{
+  --bg:#F1F5FB;--surface:#fff;--surface2:#EAF0FA;--surface3:#DDE6F5;
+  --border:rgba(0,0,0,.07);--border2:rgba(0,0,0,.13);
+  --text:#0E1729;--text2:#4A5A80;--text3:#8A9AB8;
+  --shadow:0 20px 60px rgba(0,0,0,.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:16px;
+  transition:background .25s;
+  position:relative;overflow:hidden;
+}
+/* Animated background blobs */
+.blob{position:fixed;border-radius:50%;filter:blur(80px);opacity:.12;pointer-events:none;animation:float 8s ease-in-out infinite}
+.blob-1{width:500px;height:500px;background:var(--blue);top:-150px;right:-100px;animation-delay:0s}
+.blob-2{width:400px;height:400px;background:var(--green);bottom:-100px;left:-80px;animation-delay:3s}
+.blob-3{width:300px;height:300px;background:var(--blue-3);top:40%;left:40%;animation-delay:5s}
+@keyframes float{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-30px) scale(1.05)}}
+
+.login-card{
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:20px;
+  padding:40px 36px;
+  width:100%;max-width:420px;
+  box-shadow:var(--shadow);
+  position:relative;z-index:1;
+  animation:slideUp .4s cubic-bezier(.4,0,.2,1);
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* Top accent */
+.login-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  border-radius:20px 20px 0 0;
+  background:linear-gradient(90deg,var(--blue-3),var(--blue),var(--green));
+}
+
+.lc-logo{display:flex;align-items:center;gap:12px;margin-bottom:30px}
+.lc-logo-img{width:40px;height:40px;border-radius:10px;object-fit:contain}
+.lc-logo-fb{width:40px;height:40px;border-radius:10px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.72rem;color:#fff}
+.lc-logo-name{font-weight:800;font-size:1.15rem;letter-spacing:-.01em}
+.lc-logo-sub{font-size:.7rem;color:var(--text3);margin-top:1px}
+
+.lc-title{font-size:1.35rem;font-weight:800;letter-spacing:-.02em;margin-bottom:5px}
+.lc-sub{font-size:.8rem;color:var(--text3);margin-bottom:26px}
+
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.fl{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text3)}
+.fi{
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:9px;color:var(--text);padding:11px 13px;
+  font-size:.85rem;width:100%;outline:none;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  transition:border-color .2s,box-shadow .2s;
+}
+.fi:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(30,176,240,.12)}
+.fi-wrap{position:relative}
+.fi-wrap .fi{padding-right:42px}
+.fi-eye{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;color:var(--text3);
+  display:flex;align-items:center;padding:2px;
+  transition:color .2s;
+}
+.fi-eye:hover{color:var(--text)}
+.fi-eye svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8}
+
+.btn-login{
+  width:100%;padding:12px;border-radius:9px;
+  background:var(--blue);color:#fff;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:.88rem;font-weight:700;
+  border:none;cursor:pointer;
+  transition:background .2s,transform .15s,box-shadow .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:6px;
+}
+.btn-login:hover{background:var(--blue-2);transform:translateY(-1px);box-shadow:0 4px 14px rgba(30,176,240,.35)}
+.btn-login:active{transform:translateY(0)}
+.btn-login:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-login svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2;animation:spin .7s linear infinite;display:none}
+.btn-login.loading svg{display:block}
+.btn-login.loading .btn-txt{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.divider{display:flex;align-items:center;gap:10px;margin:20px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border2)}
+.divider span{font-size:.7rem;color:var(--text3);font-weight:500}
+
+.btn-register{
+  width:100%;padding:11px;border-radius:9px;
+  background:transparent;color:var(--text2);
+  border:1px solid var(--border2);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:.85rem;font-weight:600;cursor:pointer;
+  transition:background .2s,color .2s,border-color .2s;
+}
+.btn-register:hover{background:var(--surface2);color:var(--text);border-color:var(--border2)}
+
+.err-msg{
+  background:rgba(232,69,69,.1);border:1px solid rgba(232,69,69,.25);
+  color:var(--red);border-radius:8px;padding:10px 13px;
+  font-size:.78rem;font-weight:500;margin-top:14px;
+  display:none;
+}
+.err-msg.show{display:block}
+.ok-msg{
+  background:rgba(46,196,182,.1);border:1px solid rgba(46,196,182,.25);
+  color:var(--green);border-radius:8px;padding:10px 13px;
+  font-size:.78rem;font-weight:500;margin-top:14px;
+  display:none;
+}
+.ok-msg.show{display:block}
+
+.forgot{
+  text-align:right;margin-top:-8px;margin-bottom:14px;
+}
+.forgot button{
+  background:none;border:none;color:var(--blue);
+  font-size:.74rem;font-weight:600;cursor:pointer;
+  transition:opacity .2s;
+}
+.forgot button:hover{opacity:.75}
+
+.theme-toggle{
+  position:fixed;top:16px;right:16px;
+  width:34px;height:34px;border-radius:8px;
+  background:var(--surface);border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;z-index:10;transition:background .2s;
+}
+.theme-toggle:hover{background:var(--surface2)}
+.theme-toggle svg{width:16px;height:16px;stroke:var(--text2);fill:none;stroke-width:1.8}
+
+/* Mode indicator */
+.mode-indicator{
+  position:absolute;bottom:-1px;left:0;right:0;
+  background:linear-gradient(90deg,var(--blue-3),var(--blue));
+  height:2px;border-radius:0 0 20px 20px;
+  transform:scaleX(0);transition:transform .3s;transform-origin:left;
+}
+.mode-indicator.register{background:linear-gradient(90deg,var(--green),var(--blue));transform:scaleX(1)}
+.mode-indicator.login{background:linear-gradient(90deg,var(--blue-3),var(--blue));transform:scaleX(1)}
+
+.powered{
+  text-align:center;margin-top:22px;
+  font-size:.65rem;color:var(--text3);
+}
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<button class="theme-toggle" id="themeBtn" title="Cambiar tema">
+  <svg id="themeIc" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+</button>
+
+<div class="login-card">
+  <div class="mode-indicator" id="modeBar"></div>
+
+  <div class="lc-logo">
+    <img class="lc-logo-img" src="logo.png" alt="GWD" onerror="this.style.display='none';document.getElementById('logoFb').style.display='flex'">
+    <div class="lc-logo-fb" id="logoFb" style="display:none">GWD</div>
+    <div>
+      <div class="lc-logo-name">gwevdeb</div>
+      <div class="lc-logo-sub">Agencia de Desarrollo Web</div>
+    </div>
+  </div>
+
+  <!-- LOGIN FORM -->
+  <div id="formLogin">
+    <div class="lc-title">Bienvenido de vuelta</div>
+    <div class="lc-sub">Ingresa a tu centro de trabajo</div>
+
+    <div class="fg">
+      <label class="fl">Email</label>
+      <input class="fi" type="email" id="lEmail" placeholder="tu@email.com" autocomplete="email">
+    </div>
+    <div class="fg">
+      <label class="fl">Contraseña</label>
+      <div class="fi-wrap">
+        <input class="fi" type="password" id="lPass" placeholder="••••••••" autocomplete="current-password">
+        <button class="fi-eye" onclick="togglePass('lPass',this)" type="button">
+          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="forgot"><button onclick="showForgot()" type="button">¿Olvidaste tu contraseña?</button></div>
+
+    <button class="btn-login" id="btnLogin" onclick="doLogin()">
+      <svg viewBox="0 0 24 24" style="stroke:white"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
+      <span class="btn-txt">Ingresar</span>
+    </button>
+
+    <div class="divider"><span>¿No tenés cuenta?</span></div>
+    <button class="btn-register" onclick="showRegister()">Crear cuenta</button>
+
+    <div class="err-msg" id="lErr"></div>
+  </div>
+
+  <!-- REGISTER FORM -->
+  <div id="formRegister" style="display:none">
+    <div class="lc-title">Crear cuenta</div>
+    <div class="lc-sub">Configura tu acceso a GWD Dashboard</div>
+
+    <div class="fg">
+      <label class="fl">Email</label>
+      <input class="fi" type="email" id="rEmail" placeholder="tu@email.com" autocomplete="email">
+    </div>
+    <div class="fg">
+      <label class="fl">Contraseña</label>
+      <div class="fi-wrap">
+        <input class="fi" type="password" id="rPass" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+        <button class="fi-eye" onclick="togglePass('rPass',this)" type="button">
+          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Confirmar Contraseña</label>
+      <div class="fi-wrap">
+        <input class="fi" type="password" id="rPass2" placeholder="Repetir contraseña" autocomplete="new-password">
+        <button class="fi-eye" onclick="togglePass('rPass2',this)" type="button">
+          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <button class="btn-login" id="btnRegister" onclick="doRegister()">
+      <svg viewBox="0 0 24 24" style="stroke:white"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
+      <span class="btn-txt">Crear cuenta</span>
+    </button>
+
+    <div class="divider"><span>¿Ya tenés cuenta?</span></div>
+    <button class="btn-register" onclick="showLogin()">Iniciar sesión</button>
+
+    <div class="err-msg" id="rErr"></div>
+    <div class="ok-msg" id="rOk"></div>
+  </div>
+
+  <!-- FORGOT PASSWORD FORM -->
+  <div id="formForgot" style="display:none">
+    <div class="lc-title">Recuperar acceso</div>
+    <div class="lc-sub">Te enviamos un link para restablecer tu contraseña</div>
+
+    <div class="fg">
+      <label class="fl">Tu Email</label>
+      <input class="fi" type="email" id="fEmail" placeholder="tu@email.com">
+    </div>
+
+    <button class="btn-login" id="btnForgot" onclick="doForgot()">
+      <svg viewBox="0 0 24 24" style="stroke:white"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
+      <span class="btn-txt">Enviar link</span>
+    </button>
+
+    <div class="divider"><span></span></div>
+    <button class="btn-register" onclick="showLogin()">Volver al login</button>
+
+    <div class="err-msg" id="fErr"></div>
+    <div class="ok-msg" id="fOk"></div>
+  </div>
+
+  <div class="powered">Centro de trabajo · gwevdeb © 2026</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SUPABASE — reemplazá las dos variables
+══════════════════════════════════════ -->
+<script>
+const SUPA_URL = 'https://gwffwqswoyhwxbhuvocw.supabase.co';   // ← reemplazar
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd3ZmZ3cXN3b3lod3hiaHV2b2N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MDUwMzMsImV4cCI6MjA5NTM4MTAzM30.me1tyqOJJPuA16RYACjUM3tsrTYO-5ty6D1lsnuho_w';                 // ← reemplazar
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+// Inicializar cliente (UMD expone window.supabase)
+const { createClient } = window.supabase;
+const _sb = createClient(SUPA_URL, SUPA_KEY);
+
+/* ═══ THEME ═══ */
+let dark = localStorage.getItem('gwd_theme') !== 'light';
+applyTh();
+function applyTh(){
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('themeIc').innerHTML = dark
+    ? '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>'
+    : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+  localStorage.setItem('gwd_theme', dark ? 'dark' : 'light');
+}
+document.getElementById('themeBtn').addEventListener('click', () => { dark = !dark; applyTh(); });
+
+/* ═══ FORM SWITCHING ═══ */
+function showLogin(){
+  document.getElementById('formLogin').style.display = '';
+  document.getElementById('formRegister').style.display = 'none';
+  document.getElementById('formForgot').style.display = 'none';
+  document.getElementById('modeBar').className = 'mode-indicator login';
+}
+function showRegister(){
+  document.getElementById('formLogin').style.display = 'none';
+  document.getElementById('formRegister').style.display = '';
+  document.getElementById('formForgot').style.display = 'none';
+  document.getElementById('modeBar').className = 'mode-indicator register';
+}
+function showForgot(){
+  document.getElementById('formLogin').style.display = 'none';
+  document.getElementById('formRegister').style.display = 'none';
+  document.getElementById('formForgot').style.display = '';
+  document.getElementById('modeBar').className = 'mode-indicator';
+}
+
+/* ═══ HELPERS ═══ */
+function togglePass(inputId, btn){
+  const inp = document.getElementById(inputId);
+  const isPass = inp.type === 'password';
+  inp.type = isPass ? 'text' : 'password';
+  btn.innerHTML = isPass
+    ? '<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+    : '<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+}
+function setLoading(btnId, on){
+  const btn = document.getElementById(btnId);
+  btn.disabled = on;
+  btn.classList.toggle('loading', on);
+}
+function showErr(id, msg){ const el=document.getElementById(id); el.textContent=msg; el.className='err-msg show'; }
+function hideErr(id){ document.getElementById(id).className='err-msg'; }
+function showOk(id, msg){ const el=document.getElementById(id); el.textContent=msg; el.className='ok-msg show'; }
+
+/* ═══ CHECK EXISTING SESSION ═══ */
+(async()=>{
+  const { data:{ session } } = await _sb.auth.getSession();
+  if(session) window.location.href = 'gwd-dashboard.html';
+})();
+
+/* ═══ LOGIN ═══ */
+async function doLogin(){
+  hideErr('lErr');
+  const email = document.getElementById('lEmail').value.trim();
+  const pass  = document.getElementById('lPass').value;
+  if(!email || !pass){ showErr('lErr','Completá todos los campos.'); return; }
+  setLoading('btnLogin', true);
+  const { error } = await _sb.auth.signInWithPassword({ email, password: pass });
+  setLoading('btnLogin', false);
+  if(error){ showErr('lErr', tradErr(error.message)); return; }
+  window.location.href = 'gwd-dashboard.html';
+}
+
+/* ═══ REGISTER ═══ */
+async function doRegister(){
+  hideErr('rErr');
+  const email = document.getElementById('rEmail').value.trim();
+  const pass  = document.getElementById('rPass').value;
+  const pass2 = document.getElementById('rPass2').value;
+  if(!email || !pass || !pass2){ showErr('rErr','Completá todos los campos.'); return; }
+  if(pass.length < 6){ showErr('rErr','La contraseña debe tener al menos 6 caracteres.'); return; }
+  if(pass !== pass2){ showErr('rErr','Las contraseñas no coinciden.'); return; }
+  setLoading('btnRegister', true);
+  const { error } = await _sb.auth.signUp({ email, password: pass });
+  setLoading('btnRegister', false);
+  if(error){ showErr('rErr', tradErr(error.message)); return; }
+  showOk('rOk','¡Cuenta creada! Podés ingresar ahora.');
+  setTimeout(()=>{ showLogin(); document.getElementById('lEmail').value=email; }, 1800);
+}
+
+/* ═══ FORGOT PASSWORD ═══ */
+async function doForgot(){
+  hideErr('fErr');
+  const email = document.getElementById('fEmail').value.trim();
+  if(!email){ showErr('fErr','Ingresá tu email.'); return; }
+  setLoading('btnForgot', true);
+  const { error } = await _sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/gwd-dashboard.html'
+  });
+  setLoading('btnForgot', false);
+  if(error){ showErr('fErr', tradErr(error.message)); return; }
+  showOk('fOk','Link enviado. Revisá tu bandeja de entrada.');
+}
+
+/* ═══ ENTER KEY ═══ */
+document.addEventListener('keydown', e => {
+  if(e.key !== 'Enter') return;
+  const fl = document.getElementById('formLogin');
+  const fr = document.getElementById('formRegister');
+  const ff = document.getElementById('formForgot');
+  if(fl.style.display !== 'none') doLogin();
+  else if(fr.style.display !== 'none') doRegister();
+  else if(ff.style.display !== 'none') doForgot();
+});
+
+/* ═══ ERROR TRANSLATIONS ═══ */
+function tradErr(msg){
+  if(!msg) return 'Error desconocido.';
+  const m = msg.toLowerCase();
+  if(m.includes('invalid login') || m.includes('invalid credentials')) return 'Email o contraseña incorrectos.';
+  if(m.includes('email not confirmed')) return 'Confirmá tu email antes de ingresar.';
+  if(m.includes('user already registered')) return 'Ese email ya tiene una cuenta.';
+  if(m.includes('password should be')) return 'La contraseña debe tener al menos 6 caracteres.';
+  if(m.includes('rate limit')) return 'Demasiados intentos. Esperá unos minutos.';
+  if(m.includes('network')) return 'Error de conexión. Revisá tu internet.';
+  return msg;
+}
+
+/* Init mode bar */
+document.getElementById('modeBar').className = 'mode-indicator login';
+</script>
+</body>
+</html>
